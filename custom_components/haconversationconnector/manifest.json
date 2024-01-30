@@ -1,9 +1,0 @@
-{
-  "domain": "haconversationconnector",
-  "name": "HA Conversation Connector",
-  "config_flow": true,
-  "documentation": "https://github.com/nrablin/haconversationconnector",
-  "requirements": [],
-  "dependencies": ["conversation"],
-  "codeowners": ["@nrablin"]
-}
