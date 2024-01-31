@@ -3,7 +3,9 @@
   "name": "HA Conversation Connector",
   "config_flow": true,
   "documentation": "https://github.com/nrablin/haconva",
+  "integration_type": "service",
   "requirements": [],
   "dependencies": [],
-  "codeowners": ["@nrablin"]
+  "codeowners": ["@nrablin"],
+  "version": "0.0.1"
 }

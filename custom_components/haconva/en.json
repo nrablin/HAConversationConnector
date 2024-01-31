@@ -1,0 +1,30 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Configure HA Conversation Connector",
+                "description": "Please enter the configuration parameters.",
+                "data": {
+                    "node_red_http": "Enter the URL for Node-RED",
+                    "store_history": "Do you want to store history?",
+                    "history_conversations": "How many history conversations do you want to store?"
+                }
+            },
+            "init": {
+                "title": "Configure HA Conversation Connector",
+                "description": "Please enter the configuration parameters.",
+                "data": {
+                    "node_red_http": "Enter the URL for Node-RED",
+                    "store_history": "Do you want to store history?",
+                    "history_conversations": "How many history conversations do you want to store?"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Cannot connect",
+            "invalid_auth": "Invalid authentication",
+            "unknown": "Unknown error"
+        },
+        "title": "HA Conversation Connector"
+    }
+}

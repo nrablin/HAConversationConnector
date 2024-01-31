@@ -1,0 +1,25 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "data": {
+                    "node_red_http": "Node-RED HTTP",
+                    "node_red_api": "Node-RED API",
+                    "store_history": "Store History",
+                    "history_conversations": "History Conversations"
+                }
+            },
+            "init": {
+                "options": {
+                    "node_red_http": "Node-RED HTTP (Options)",
+                    "node_red_api": "Node-RED API (Options)",
+                    "store_history": "Store History (Options)",
+                    "history_conversations": "History Conversations (Options)"
+                }
+            }
+        },
+        "error": {
+            "unknown": "An unknown error occurred"
+        }
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "data": {
+                    "node_red_http": "[%key:common::config_flow::data::node_red_http%]",
+                    "node_red_api": "[%key:common::config_flow::data::node_red_api%]",
+                    "store_history": "[%key:common::config_flow::data::store_history%]",
+                    "history_conversations": "[%key:common::config_flow::data::history_conversations%]"
+                }
+            },
+            "init": {
+                "options": {
+                    "node_red_http": "[%key:common::config_flow::options::node_red_http%]",
+                    "node_red_api": "[%key:common::config_flow::options::node_red_api%]",
+                    "store_history": "[%key:common::config_flow::options::store_history%]",
+                    "history_conversations": "[%key:common::config_flow::options::history_conversations%]"
+                }
+            }
+        },
+        "error": {
+            "unknown": "[%key:common::config_flow::error::unknown%]"
+        }
+    }
+}
