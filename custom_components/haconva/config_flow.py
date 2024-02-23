@@ -83,9 +83,16 @@ class HAConversationConnectorOptionsFlow(config_entries.OptionsFlow):
             # Update the config entry options
             return self.async_create_entry(title="HA Conversation Connector", data=user_input)
         else:
-            # Show the form
+            # Populate form with existing values or default/suggested values
+            existing_options = dict(self.config_flow.options) if self.config_flow.options else {}
+            data_schema = vol.Schema({
+                vol.Required(CONF_NODE_RED_HTTP, default=existing_options.get(CONF_NODE_RED_HTTP, DEFAULT_NODE_RED_HTTP)): str,
+                vol.Required(CONF_NODE_RED_API, default=existing_options.get(CONF_NODE_RED_API, DEFAULT_NODE_RED_API)): str,
+                vol.Optional(CONF_STORE_HISTORY, default=existing_options.get(CONF_STORE_HISTORY, DEFAULT_STORE_HISTORY)): bool,
+                vol.Optional(CONF_HISTORY_CONVERSATIONS, default=existing_options.get(CONF_HISTORY_CONVERSATIONS, DEFAULT_HISTORY_CONVERSATIONS)): int,
+            })
             return self.async_show_form(
                 step_id="init",
-                data_schema=STEP_USER_DATA_SCHEMA,
+                data_schema=data_schema,
             )
 
