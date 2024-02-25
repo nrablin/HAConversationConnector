@@ -5,7 +5,17 @@ from homeassistant.helpers import intent,entity_registry as er
 from homeassistant.components.homeassistant.exposed_entities import async_should_expose
 from homeassistant.util import ulid
 from .nodered_connector import NodeRedConnector
-from .const import CONF_NODE_RED_HTTP, CONF_NODE_RED_API, CONF_STORE_HISTORY, CONF_HISTORY_CONVERSATIONS
+from .const import CONF_NODE_RED_HTTP, CONF_NODE_RED_API, CONF_STORE_HISTORY, CONF_HISTORY_CONVERSATIONS, CONF_TRY_HA_FIRST
+class ConversationAgent:
+    """A conversation agent for HA Conversation Connector."""
+
+    def __init__(self, hass, entry):
+        self.hass = hass
+        self.entry = entry
+        self.supported_languages = ["en"]
+        self.conversation_history = []
+        self.history_length = self.entry.options.get('history_length', 10)  # Use entry.options to access config flow options
+        self.node_red = NodeRedConnector(f"{self.entry.data[CONF_NODE_RED_HTTP]}/{self.entry.data[CONF_NODE_RED_API]}")
 
 class ConversationAgent:
     """A conversation agent for HA Conversation Connector."""
@@ -23,16 +33,29 @@ class ConversationAgent:
         """Handle a conversation utterance."""
         text = utterance.text
 
-#PLACEHOLDER to try and process with HomeAssistant first
-        # Try to process the utterance with Home Assistant
-        #conversation_result = await conversation.async_converse(self.hass, text, self.supported_languages, context)
+        if self.entry.data[CONF_TRY_HA_FIRST]:
+            # Generate a unique conversation ID or use the existing one
+            conversation_id = utterance.conversation_id or ulid.ulid_now()
+            
+            conversation_result = await conversation.async_converse(self.hass, text, self.supported_languages, context)
 
-        #if conversation_result != "Sorry, I couldn't understand that":
-            # The utterance matches a registered intent
-            #https://developers.home-assistant.io/docs/intent_conversation_api#response-types
-            # Return the ConversationResult from Home Assistant
-        #    return conversation_result
-# End Placeholder
+            # Check if the response is an IntentResponse object
+            if isinstance(conversation_result.response, intent.IntentResponse):
+                # If it is, extract the speech text from it
+                response_text = conversation_result.response.speech['plain']['speech']
+            else:
+                response_text = conversation_result.response
+
+            if response_text != "Sorry, I couldn't understand that":
+                # Create an IntentResponse and set the speech
+                intent_response = intent.IntentResponse(language="en")
+                intent_response.async_set_speech(response_text)
+            
+                # Return a ConversationResult with the intent response
+                return conversation.ConversationResult(
+                    response=intent_response, 
+                    conversation_id=conversation_result.conversation_id  # Use the conversation_id from the result
+                )
 
 
         # Generate a unique conversation ID or use the existing one
