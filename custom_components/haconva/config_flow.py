@@ -11,23 +11,24 @@ from .const import (
     CONF_NODE_RED_API,
     CONF_STORE_HISTORY,
     CONF_HISTORY_CONVERSATIONS,
+    CONF_TRY_HA_FIRST,
     DEFAULT_NODE_RED_HTTP,
     DEFAULT_NODE_RED_API,
     DEFAULT_STORE_HISTORY,
     DEFAULT_HISTORY_CONVERSATIONS,
+    DEFAULT_TRY_HA_FIRST,
     DOMAIN,
 )
-    
-STEP_USER_DATA_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_NODE_RED_HTTP, description={"suggested_value": DEFAULT_NODE_RED_HTTP}): str,
-        vol.Required(CONF_NODE_RED_API, default=DEFAULT_NODE_RED_API): str,
-        vol.Optional(CONF_STORE_HISTORY, default=DEFAULT_STORE_HISTORY): bool,
-        vol.Optional(CONF_HISTORY_CONVERSATIONS, default=DEFAULT_HISTORY_CONVERSATIONS): int,
-    }
+from homeassistant.helpers.selector import (
+    BooleanSelector,
+    NumberSelector,
+    NumberSelectorConfig,
+    SelectOptionDict,
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+    TemplateSelector,
 )
-
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -65,34 +66,22 @@ class HAConversationConnectorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN
                     data=user_input
                 )
         else:
+            # Populate form with existing values or default/suggested values
+            config_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"]) if "entry_id" in self.context else None
+            existing_data = dict(self.config_entry.data) if config_entry else {}
+            data_schema = vol.Schema({
+                vol.Required(CONF_NODE_RED_HTTP, default=existing_data.get(CONF_NODE_RED_HTTP, DEFAULT_NODE_RED_HTTP)): str,
+                vol.Required(CONF_NODE_RED_API, default=existing_data.get(CONF_NODE_RED_API, DEFAULT_NODE_RED_API)): str,
+                vol.Optional(CONF_STORE_HISTORY, default=existing_data.get(CONF_STORE_HISTORY, DEFAULT_STORE_HISTORY)): BooleanSelector(),
+                vol.Optional(CONF_TRY_HA_FIRST, default=existing_data.get(CONF_TRY_HA_FIRST, DEFAULT_TRY_HA_FIRST)): BooleanSelector(),
+                vol.Required(CONF_HISTORY_CONVERSATIONS, default=existing_data.get(CONF_HISTORY_CONVERSATIONS, DEFAULT_HISTORY_CONVERSATIONS)): int,
+            })
             # Show the form
             return self.async_show_form(
                 step_id="user",
-                data_schema=STEP_USER_DATA_SCHEMA,
+                data_schema=data_schema,
                 errors=errors,
             )
-    def async_get_options_flow(self):
-        return HAConversationConnectorOptionsFlow(self)
 
-class HAConversationConnectorOptionsFlow(config_entries.OptionsFlow):
-    def __init__(self, config_flow):
-        self.config_flow = config_flow
 
-    async def async_step_init(self, user_input=None):
-        if user_input is not None:
-            # Update the config entry options
-            return self.async_create_entry(title="HA Conversation Connector", data=user_input)
-        else:
-            # Populate form with existing values or default/suggested values
-            existing_options = dict(self.config_flow.options) if self.config_flow.options else {}
-            data_schema = vol.Schema({
-                vol.Required(CONF_NODE_RED_HTTP, default=existing_options.get(CONF_NODE_RED_HTTP, DEFAULT_NODE_RED_HTTP)): str,
-                vol.Required(CONF_NODE_RED_API, default=existing_options.get(CONF_NODE_RED_API, DEFAULT_NODE_RED_API)): str,
-                vol.Optional(CONF_STORE_HISTORY, default=existing_options.get(CONF_STORE_HISTORY, DEFAULT_STORE_HISTORY)): bool,
-                vol.Optional(CONF_HISTORY_CONVERSATIONS, default=existing_options.get(CONF_HISTORY_CONVERSATIONS, DEFAULT_HISTORY_CONVERSATIONS)): int,
-            })
-            return self.async_show_form(
-                step_id="init",
-                data_schema=data_schema,
-            )
 
