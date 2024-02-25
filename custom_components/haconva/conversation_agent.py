@@ -36,7 +36,7 @@ class ConversationAgent:
         if self.entry.data[CONF_TRY_HA_FIRST]:
             # Generate a unique conversation ID or use the existing one
             conversation_id = utterance.conversation_id or ulid.ulid_now()
-            
+
             conversation_result = await conversation.async_converse(self.hass, text, self.supported_languages, context)
 
             # Check if the response is an IntentResponse object
@@ -46,7 +46,7 @@ class ConversationAgent:
             else:
                 response_text = conversation_result.response
 
-            if response_text != "Sorry, I couldn't understand that":
+            if not conversation_result.response.response_type == intent.IntentResponseType.ERROR:
                 # Create an IntentResponse and set the speech
                 intent_response = intent.IntentResponse(language="en")
                 intent_response.async_set_speech(response_text)
