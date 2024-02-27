@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from homeassistant.components import conversation
-from homeassistant.helpers import intent,entity_registry as er
+from homeassistant.helpers import intent,entity_registry as er, device_registry as dr, area_registry as ar
 from homeassistant.components.homeassistant.exposed_entities import async_should_expose
 from homeassistant.util import ulid
 from .nodered_connector import NodeRedConnector
@@ -35,6 +35,31 @@ class ConversationAgent:
         context = utterance.context
         va_device = utterance.device_id
 
+        def get_area_of_device(hass, device_id):
+            # Get device registry
+            dev_registry = dr.async_get(hass)
+            # Get area registry
+            area_registry = ar.async_get(hass)
+            
+            # Find the device
+            device = dev_registry.async_get(device_id)
+            if device is None:
+                return None
+            
+            # Get area_id from the device
+            area_id = device.area_id
+            if area_id is None:
+                return None
+            
+            # Find the area using area_id
+            area = area_registry.async_get_area(area_id)
+            if area is None:
+                return None
+            
+            return area.name  # or return area as needed
+
+        va_area = get_area_of_device(self.hass, va_device)
+
         if self.entry.data[CONF_TRY_HA_FIRST]:
             # Generate a unique conversation ID or use the existing one
             conversation_id = utterance.conversation_id or ulid.ulid_now()
@@ -59,7 +84,6 @@ class ConversationAgent:
                     conversation_id=conversation_result.conversation_id  # Use the conversation_id from the result
                 )
 
-
        
         def context_to_dict(context):
             # Replace with the actual attributes of the Context object
@@ -67,7 +91,8 @@ class ConversationAgent:
                 'user_id': context.user_id,
                 'parent_id': context.parent_id,
                 'id': context.id,
-                'device': va_device
+                'device': va_device,
+                'area': va_area
                 #'language': context.language,
                 #'device_id': context.device_id,
                 #'device_type': context.device_type,
