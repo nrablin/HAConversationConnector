@@ -32,6 +32,7 @@ class ConversationAgent:
     async def async_process(self, utterance, context=None):
         """Handle a conversation utterance."""
         text = utterance.text
+        context = utterance.context
 
         if self.entry.data[CONF_TRY_HA_FIRST]:
             # Generate a unique conversation ID or use the existing one
@@ -58,7 +59,26 @@ class ConversationAgent:
                 )
 
 
-        # Generate a unique conversation ID or use the existing one
+       
+        def context_to_dict(context):
+            # Replace with the actual attributes of the Context object
+            return {
+                'user_id': context.user_id,
+                'parent_id': context.parent_id,
+                'id': context.id
+                #'language': context.language,
+                #'device_id': context.device_id,
+                #'device_type': context.device_type,
+                #'room_id': context.room_id,
+                #'room_name': context.room_name,
+                #'user': context.user,
+                #'home': context.home,
+                #'app': context.app
+                         
+                # Add more attributes as needed
+            }
+
+         # Generate a unique conversation ID or use the existing one
         conversation_id = utterance.conversation_id or ulid.ulid_now()
 
         # Prepare the content for the POST request
@@ -66,7 +86,8 @@ class ConversationAgent:
             'content': utterance.text,
             'chatid': conversation_id,
             'history': json.dumps(self.conversation_history),
-            'exposed_entities': json.dumps(self.get_exposed_entities())
+            'exposed_entities': json.dumps(self.get_exposed_entities()),
+            'context': json.dumps(context_to_dict(context)) 
         }
 
         status_code, message = await self.hass.async_add_executor_job(
