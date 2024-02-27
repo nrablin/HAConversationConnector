@@ -33,6 +33,7 @@ class ConversationAgent:
         """Handle a conversation utterance."""
         text = utterance.text
         context = utterance.context
+        va_device = utterance.device_id
 
         if self.entry.data[CONF_TRY_HA_FIRST]:
             # Generate a unique conversation ID or use the existing one
@@ -65,7 +66,8 @@ class ConversationAgent:
             return {
                 'user_id': context.user_id,
                 'parent_id': context.parent_id,
-                'id': context.id
+                'id': context.id,
+                'device': va_device
                 #'language': context.language,
                 #'device_id': context.device_id,
                 #'device_type': context.device_type,
