@@ -34,6 +34,7 @@ class ConversationAgent:
         text = utterance.text
         context = utterance.context
         va_device = utterance.device_id
+        language = utterance.language
 
         def get_area_of_device(hass, device_id):
             # Get device registry
@@ -63,8 +64,7 @@ class ConversationAgent:
         if self.entry.data[CONF_TRY_HA_FIRST]:
             # Generate a unique conversation ID or use the existing one
             conversation_id = utterance.conversation_id or ulid.ulid_now()
-
-            conversation_result = await conversation.async_converse(self.hass, text, self.supported_languages, context)
+            conversation_result = await conversation.async_converse(self.hass, text,  conversation_id,context, language, None, va_device)
 
             # Check if the response is an IntentResponse object
             if isinstance(conversation_result.response, intent.IntentResponse):
@@ -91,7 +91,6 @@ class ConversationAgent:
                 'user_id': context.user_id,
                 'parent_id': context.parent_id,
                 'id': context.id,
-                'device': va_device,
                 'area': va_area
                 #'language': context.language,
                 #'device_id': context.device_id,
